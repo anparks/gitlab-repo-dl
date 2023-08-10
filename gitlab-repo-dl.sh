@@ -32,11 +32,12 @@ if [ "$1" == "group" ]; then
         REPO_PATH="$GROUP_NAME/$(echo "$REPO_SSH_URL" | awk -F'/' '{print $NF}' | awk -F'.' '{print $1}')"
 
         if [ ! -d "$REPO_PATH" ]; then
-            echo "git clone $REPO_PATH"
-            git clone "$REPO_SSH_URL" "$REPO_PATH"
+            echo "git clone --mirror $REPO_PATH $REPO_PATH/.git"
+            git clone --mirror "$REPO_SSH_URL" "$REPO_PATH/.git"
+            (cd $REPO_PATH && git config --bool core.bare false && git checkout)
         else
-            echo "git pull $REPO_PATH"
-            (cd "$REPO_PATH" && git pull)
+            echo "git pull --all $REPO_PATH"
+            (cd "$REPO_PATH" && git pull --all)
         fi
     done
 elif [ "$1" == "all-repo-list" ]; then
@@ -69,11 +70,12 @@ elif [ "$1" == "from-list" ]; then
         REPO_PATH="$(echo "$REPO_SSH_URL" | awk -F':' '{print $NF}' | awk -F'.' '{print $1}')"
 
         if [ ! -d "$TARGET_DIR/$REPO_PATH" ]; then
-            echo "git clone $REPO_PATH"
-            git clone "$REPO_SSH_URL" "$TARGET_DIR/$REPO_PATH"
+            echo "git clone --mirror $REPO_PATH $REPO_PATH/.git"
+            git clone --mirror "$REPO_SSH_URL" "$TARGET_DIR/$REPO_PATH/.git"
+            (cd $TARGET_DIR/$REPO_PATH && git config --bool core.bare false && git checkout)
         else
-            echo "git pull $REPO_PATH"
-            (cd "$TARGET_DIR/$REPO_PATH" && git pull)
+            echo "git pull --all $REPO_PATH"
+            (cd "$TARGET_DIR/$REPO_PATH" && git pull --all)
         fi
     done <"$LIST_FILE"
 fi
